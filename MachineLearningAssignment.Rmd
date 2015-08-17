@@ -5,22 +5,51 @@ date: "16 Aug 2015"
 output: html_document
 ---
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+# Question
+The assignment is to make a prediction for how well an activity is done based on activity tracker data.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+# Input data
+The training data was available here:
+[link](https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv)
 
-```{r}
-summary(cars)
+The testing data was available here:
+[link](https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv)
+
+I started by loading the training data and running some of the summary functions on it just to see what it contained. I used the following functions to do this (results are left out to save space):
+*summary(data)
+*describe(data)
+*sapply(data, class)
+*str(data)
+
+There were some obvious post-processing tasks that had to be done before selecting features:
+
+Issue                                   | Solution
+----------------------------------------|------------------------------------------
+contains #DIV/0! and empty cells        | Change read.csv function (na.strings arg) to make these NA
+6 first variables are uneccessary as they contain nothing of value to prediction | Remove columns
+Mix of variable classes                 | Change all to numeric
+Several columns have large amounts of NA values (>97%) | Remove columns 
+
+The code that was used is given below:
+
+```{r eval=FALSE}
+# import data
+training <- read.csv("pml-training.csv", na.strings = c("NA", "#DIV/0!", ""))
+# remove uneccessary columns
+trainfilt <- training[,-c(1:6)]
+# make all into type numeric 
+for(i in c(2:ncol(trainfilt)-1)){
+        trainfilt[,i] = as.numeric(as.character(trainfilt[,i]))
+}
+# remove columns with almost all NA values
+trainfilt <- trainfilt[colnames(trainfilt[colSums(is.na(trainfilt))==0])]
+
 ```
 
-You can also embed plots, for example:
+I tested with the nearZeroVar() function which did not report any variables having a near zero variance any longer.
+
 
 ```{r, echo=FALSE}
-library(ISLR); library(ggplot2); library(caret)
 
-training <- read.csv("pml-training.csv")
-testing <- read.csv("pml-testing.csv")
-ncol(testing)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

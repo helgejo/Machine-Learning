@@ -68,20 +68,55 @@ img {
 </div>
 
 
-<p>This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <a href="http://rmarkdown.rstudio.com" class="uri">http://rmarkdown.rstudio.com</a>.</p>
-<p>When you click the <strong>Knit</strong> button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:</p>
-<pre class="r"><code>summary(cars)</code></pre>
-<pre><code>##      speed           dist       
-##  Min.   : 4.0   Min.   :  2.00  
-##  1st Qu.:12.0   1st Qu.: 26.00  
-##  Median :15.0   Median : 36.00  
-##  Mean   :15.4   Mean   : 42.98  
-##  3rd Qu.:19.0   3rd Qu.: 56.00  
-##  Max.   :25.0   Max.   :120.00</code></pre>
-<p>You can also embed plots, for example:</p>
-<pre><code>## Loading required package: lattice</code></pre>
-<pre><code>## [1] 160</code></pre>
-<p>Note that the <code>echo = FALSE</code> parameter was added to the code chunk to prevent printing of the R code that generated the plot.</p>
+<div id="question" class="section level1">
+<h1>Question</h1>
+<p>The assignment is to make a prediction for how well an activity is done based on activity tracker data.</p>
+</div>
+<div id="input-data" class="section level1">
+<h1>Input data</h1>
+<p>The training data was available here: <a href="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv">link</a></p>
+<p>The testing data was available here: <a href="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv">link</a></p>
+<p>I started by loading the training data and running some of the summary functions on it just to see what it contained. I used the following functions to do this (results are left out to save space): <em>summary(data) </em>describe(data) <em>sapply(data, class) </em>str(data)</p>
+<p>There were some obvious post-processing tasks that had to be done before selecting features:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Issue</th>
+<th align="left">Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">contains #DIV/0! and empty cells</td>
+<td align="left">Change read.csv function (na.strings arg) to make these NA</td>
+</tr>
+<tr class="even">
+<td align="left">6 first variables are uneccessary as they contain nothing of value to prediction</td>
+<td align="left">Remove columns</td>
+</tr>
+<tr class="odd">
+<td align="left">Mix of variable classes</td>
+<td align="left">Change all to numeric</td>
+</tr>
+<tr class="even">
+<td align="left">Several columns have large amounts of NA values (&gt;97%)</td>
+<td align="left">Remove columns</td>
+</tr>
+</tbody>
+</table>
+<p>The code that was used is given below:</p>
+<pre class="r"><code># import data
+training &lt;- read.csv(&quot;pml-training.csv&quot;, na.strings = c(&quot;NA&quot;, &quot;#DIV/0!&quot;, &quot;&quot;))
+# remove uneccessary columns
+trainfilt &lt;- training[,-c(1:6)]
+# make all into type numeric 
+for(i in c(2:ncol(trainfilt)-1)){
+        trainfilt[,i] = as.numeric(as.character(trainfilt[,i]))
+}
+# remove columns with almost all NA values
+trainfilt &lt;- trainfilt[colnames(trainfilt[colSums(is.na(trainfilt))==0])]</code></pre>
+<p>I tested with the nearZeroVar() function which did not report any variables having a near zero variance any longer.</p>
+</div>
 
 
 </div>
