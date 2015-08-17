@@ -1,7 +1,7 @@
 library(ISLR); library(ggplot2); library(caret); library(Hmisc)
 set.seed(96)
 training <- read.csv("pml-training.csv", na.strings = c("NA", "#DIV/0!", ""))
-testing <- read.csv("pml-testing.csv", na.strings = c("NA", "#DIV/0!", ""))
+#testing <- read.csv("pml-testing.csv", na.strings = c("NA", "#DIV/0!", ""))
 #testing <- testing[which(testing$problem_id == 1),]
 #featurePlot(x=training, y=training$classe, plot="pairs")
 #featurePlot(x=training[,c(11:15)], y = training$classe,plot="pairs")
@@ -28,31 +28,22 @@ trainfilt <- trainfilt[colnames(trainfilt[colSums(is.na(trainfilt))==0])]
 
 # Split training data into train and test to do cross-validation
 inTrain <- createDataPartition(trainfilt$classe, p = 0.75, list = FALSE)
-trainfilt.train <- trainfilt[inTrain]
-trainfilt.test <- trainfilt[-inTrain]
+trainfilt.train <- trainfilt[inTrain,]
+trainfilt.test <- trainfilt[-inTrain,]
 
-preP<-preProcess(ILdata[,-13], method = "pca", thresh = 0.8)
-trainPC <- predict(preP, ILdata[,-13])
-modelFit <- train(ILdata$diagnosis ~ .,method="glm",data=trainPC)
+preP<-preProcess(trainfilt.train[,-54], method = "pca")
+trainPC <- predict(preP, trainfilt.train[,-54])
+modelFit <- train(trainfilt.train$classe ~ .,method="glm",data=trainPC)
 
-testPC <- predict(preP,testData[,-13])
-# compare results
-confusionMatrix(testData$diagnosis, predict(modelFit,testPC))
-
-# create preprocess object
-#preProcValues <- preProcess(trainfilt[,-79], method = c("center", "scale"))
-#preProc <- preProcess(trainfilt[,-79],method="pca")
-
-# calculate PCs for training data
-#trainPC <- predict(preProc,trainfilt[,-79])
-
-
-
-# run model on outcome and principle components
-modelFit <- train(trainfilt$classe ~ .,method="glm",data=trainPC)
-
-# calculate PCs for test data
-testPC <- predict(preProc,testing[,-160])
+testPC <- predict(preP,trainfilt.test[,-54])
 
 # compare results
-confusionMatrix(testing$classe,predict(modelFit,testPC))
+confusionMatrix(trainfilt.test$classe, predict(modelFit,testPC))
+
+# RandomForest prediction
+model <- randomForest(classe ~., data= trainfilt.train)
+predictionsTrain <- predict(model, newdata=trainfilt.train)
+confusionMatrix(predictionsTrain,trainfilt.train$classe)
+
+predictionsTe <- predict(model, newdata=trainfilt.test)
+confusionMatrix(predictionsTe,trainfilt.test$classe)
