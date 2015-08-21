@@ -49,6 +49,9 @@ trainfilt <- trainfilt[colnames(trainfilt[colSums(is.na(trainfilt))==0])]
 I tested with the nearZeroVar() function which did not report any variables having a near zero variance any longer.
 
 
+
+it is extremely important to use cross validation when running random forest algorithms
+
 ```{r, echo=FALSE}
 
 ```
