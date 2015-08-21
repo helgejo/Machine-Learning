@@ -8,7 +8,7 @@ output: html_document
 # Question
 The assignment is to make a prediction for how well an activity is done based on activity tracker data.
 
-# Input data
+# Input data pre-processing
 The training data was available here:
 [link](https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv)
 
@@ -16,10 +16,15 @@ The testing data was available here:
 [link](https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv)
 
 I started by loading the training data and running some of the summary functions on it just to see what it contained. I used the following functions to do this (results are left out to save space):
-*summary(data)
-*describe(data)
-*sapply(data, class)
-*str(data)
+
+```{r eval=FALSE}
+#Data description
+ summary(training)
+ describe(training)
+ head(training)
+ sapply(training, class)
+ str(training)
+```
 
 There were some obvious post-processing tasks that had to be done before selecting features:
 
@@ -48,7 +53,14 @@ trainfilt <- trainfilt[colnames(trainfilt[colSums(is.na(trainfilt))==0])]
 
 I tested with the nearZeroVar() function which did not report any variables having a near zero variance any longer.
 
+# Methodology
 
+I started by sub-dividing my data into a training and test set. Then, using the trainControl function, I setup a 3 fold cross validation control and used this in the train function with the random forest method. I then evaluated the result on the test set which gave a very good result of 99.88% accuracy. 
+
+I then evaluated the feature importance in the model to see if any of the features should be removed. num_window, roll_belt and pitch_forearm were the three best predictors. In conclusion 
+
+
+![feature importance](featureImportance.png)
 
 it is extremely important to use cross validation when running random forest algorithms
 
